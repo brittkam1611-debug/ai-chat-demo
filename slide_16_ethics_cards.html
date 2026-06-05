@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ethics Scenario Cards</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d0d1a;
+    color: #c0c0e0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    padding: 20px;
+    min-height: 100vh;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #ffb800;
+    text-align: center;
+    margin-bottom: 6px;
+  }
+
+  h1 {
+    font-size: 20px;
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-size: 12px;
+    color: #7a7a9a;
+    text-align: center;
+    margin-bottom: 24px;
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    max-width: 860px;
+    margin: 0 auto 24px;
+  }
+
+  .scenario-card {
+    background: #13132a;
+    border: 1.5px solid #2a2a4a;
+    border-radius: 10px;
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .scenario-card:hover {
+    border-color: #ffb800;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255,184,0,0.12);
+  }
+
+  .scenario-card.open {
+    border-color: #6c63ff;
+    background: #18183a;
+    transform: none;
+    box-shadow: 0 0 20px rgba(108,99,255,0.2);
+  }
+
+  .card-num {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #ffb800;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  .card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    line-height: 1.4;
+    margin-bottom: 10px;
+  }
+
+  .card-scenario {
+    font-size: 12px;
+    color: #7a7a9a;
+    line-height: 1.5;
+    flex: 1;
+  }
+
+  .card-tap {
+    font-size: 10px;
+    color: #6c63ff;
+    margin-top: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  /* Detail panel */
+  .detail-panel {
+    display: none;
+    max-width: 860px;
+    margin: 0 auto;
+    background: #18183a;
+    border: 1.5px solid #6c63ff;
+    border-radius: 12px;
+    padding: 24px 28px;
+    box-shadow: 0 8px 30px rgba(108,99,255,0.2);
+  }
+
+  .detail-panel.visible { display: block; }
+
+  .detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+
+  .detail-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.3;
+  }
+
+  .close-btn {
+    background: transparent;
+    border: 1px solid #2a2a4a;
+    border-radius: 5px;
+    color: #7a7a9a;
+    font-size: 13px;
+    padding: 4px 10px;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-left: 16px;
+    transition: all 0.2s;
+  }
+  .close-btn:hover { border-color: #6c63ff; color: #c0c0e0; }
+
+  .detail-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .detail-section {
+    background: #0d0d1a;
+    border-radius: 8px;
+    padding: 14px;
+  }
+
+  .detail-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .label-tension { color: #ffb800; }
+  .label-better { color: #00c864; }
+
+  .detail-section p {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #c0c0e0;
+  }
+
+  .detail-takeaway {
+    background: #13132a;
+    border-left: 3px solid #6c63ff;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #c0c0e0;
+  }
+
+  .detail-takeaway strong { color: #6c63ff; }
+
+  .counter {
+    text-align: center;
+    font-size: 12px;
+    color: #7a7a9a;
+    margin-top: 16px;
+  }
+
+  .counter span { color: #6c63ff; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="eyebrow">Scene 6 — Ethics & Judgment</div>
+<h1>Real-World Ethics Scenarios</h1>
+<p class="subtitle">Click a scenario card to explore the ethical tension and a better approach. These are real situations you might face at LegalShield.</p>
+
+<div class="cards-grid" id="cards-grid">
+
+  <div class="scenario-card" onclick="open(0)">
+    <div class="card-num">Scenario 01</div>
+    <div class="card-title">The Speedy Response</div>
+    <div class="card-scenario">Marcus needs to send a benefits follow-up to 40 members before end of day. He pastes the member's name, plan tier, and open issue details into ChatGPT and generates a response in 30 seconds.</div>
+    <div class="card-tap">Click to explore the tension</div>
+  </div>
+
+  <div class="scenario-card" onclick="open(1)">
+    <div class="card-num">Scenario 02</div>
+    <div class="card-title">The Grieving Member</div>
+    <div class="card-scenario">A member calls in crying after losing a spouse. They need help with estate paperwork. Marcus, feeling empathetic, prompts AI: "Write a compassionate response for a member whose husband just died."</div>
+    <div class="card-tap">Click to explore the tension</div>
+  </div>
+
+  <div class="scenario-card" onclick="open(2)">
+    <div class="card-num">Scenario 03</div>
+    <div class="card-title">The Borrowed Summary</div>
+    <div class="card-scenario">A colleague asks Marcus to help write a case summary. He uses AI to generate it but doesn't mention it. The colleague sends it to leadership as their own work, with a factual error that AI introduced.</div>
+    <div class="card-tap">Click to explore the tension</div>
+  </div>
+
+  <div class="scenario-card" onclick="open(3)">
+    <div class="card-num">Scenario 04</div>
+    <div class="card-title">The Confident Answer</div>
+    <div class="card-scenario">A member asks about coverage for a specific legal situation. Marcus isn't sure and runs the question through an AI tool. The AI gives a detailed, confident answer. Marcus copies it directly into his reply.</div>
+    <div class="card-tap">Click to explore the tension</div>
+  </div>
+
+  <div class="scenario-card" onclick="open(4)">
+    <div class="card-num">Scenario 05</div>
+    <div class="card-title">The Shortcut Habit</div>
+    <div class="card-scenario">Marcus has been using AI for all his communications for 3 weeks. His manager notices the emails are polished but he struggles to explain his reasoning in verbal conversations. His judgment feels underdeveloped.</div>
+    <div class="card-tap">Click to explore the tension</div>
+  </div>
+
+</div>
+
+<div class="detail-panel" id="detail-panel">
+  <div class="detail-header">
+    <div class="detail-title" id="detail-title"></div>
+    <button class="close-btn" onclick="close()">Close</button>
+  </div>
+  <div class="detail-body">
+    <div class="detail-section">
+      <div class="detail-section-label label-tension">The Tension</div>
+      <p id="detail-tension"></p>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-label label-better">A Better Approach</div>
+      <p id="detail-better"></p>
+    </div>
+  </div>
+  <div class="detail-takeaway" id="detail-takeaway"></div>
+</div>
+
+<div class="counter">
+  <span id="viewed-count">0</span> of 5 scenarios explored
+</div>
+
+<script>
+  const scenarios = [
+    {
+      title: "The Speedy Response",
+      tension: "Marcus entered actual member names, plan tiers, and case details into a public AI tool. That data is now outside LegalShield's systems, potentially logged by the vendor, and used to train future models. He violated data privacy without intending to.",
+      better: "Keep the prompt generic. Instead of pasting real member data, describe the situation in general terms: 'A member has an unresolved billing dispute. Write a professional follow-up that acknowledges their frustration and outlines next steps.' Then personalize the output yourself.",
+      takeaway: "<strong>Rule of thumb:</strong> If you wouldn't post it on a public forum, don't paste it into an AI tool. The speed benefit disappears if the cost is a data breach."
+    },
+    {
+      title: "The Grieving Member",
+      tension: "The impulse is kind — but AI-generated empathy is generic by design. A response crafted by a language model for 'a grieving member' won't reflect the specifics of this person's pain, their history with LegalShield, or what they actually need right now. It can come across as hollow or even worse — automated at a deeply human moment.",
+      better: "Use AI to structure the logistics (estate paperwork steps, relevant benefits) while writing the emotional opening and closing yourself. Your words, even imperfect ones, mean more in that moment than perfect AI-generated language.",
+      takeaway: "<strong>AI can draft. You must feel.</strong> Human moments require human presence. Use AI for the information layer — not the empathy layer."
+    },
+    {
+      title: "The Borrowed Summary",
+      tension: "Two problems stacked: the AI error went unchecked because no one reviewed it, and the lack of transparency meant the error couldn't be caught or corrected. When leadership follows up, neither Marcus nor his colleague can explain the reasoning behind a claim that was never actually made by a human.",
+      better: "Always review AI-generated content before sending, especially anything with facts, figures, or legal implications. If you used AI to assist, be transparent: 'I drafted this with AI assistance and reviewed it for accuracy.' Transparency protects everyone.",
+      takeaway: "<strong>AI doesn't proofread itself.</strong> You are the quality gate. If your name or your colleague's name is on it, a human has to check it."
+    },
+    {
+      title: "The Confident Answer",
+      tension: "AI gives confident answers whether or not they're accurate. It has no knowledge of LegalShield's specific plan terms, state-by-state legal nuances, or your member's actual contract. A confident wrong answer about coverage can set false expectations — and create real problems when the member acts on it.",
+      better: "Use AI to understand the general landscape of a topic, then verify specifics against LegalShield's official resources, policy documents, or provider attorney guidance before sharing anything with a member. Tell the member: 'Let me confirm that for you and follow up.'",
+      takeaway: "<strong>Confidence is not accuracy.</strong> AI's tone does not change what it knows. Always verify coverage-related answers through official channels."
+    },
+    {
+      title: "The Shortcut Habit",
+      tension: "This one is subtle — nothing went wrong yet. But Marcus is outsourcing his thinking consistently enough that his own reasoning skills are atrophying. When he can't explain his own emails, it signals something important: he's using AI as a replacement for thought rather than a tool to extend it.",
+      better: "Use AI to draft, then edit intentionally. Ask yourself: 'What would I have said here? What did AI get right or wrong? Why?' This keeps your judgment sharp. Think of AI as a first draft partner, not a ghostwriter.",
+      takeaway: "<strong>Use AI to extend your thinking — not replace it.</strong> The goal is to become a better communicator with AI's help, not to become dependent on it."
+    }
+  ];
+
+  let viewed = new Set();
+  let currentOpen = -1;
+
+  function open(idx) {
+    if (currentOpen === idx) { close(); return; }
+
+    currentOpen = idx;
+    viewed.add(idx);
+    document.getElementById('viewed-count').textContent = viewed.size;
+
+    const s = scenarios[idx];
+    document.getElementById('detail-title').textContent = 'Scenario 0' + (idx+1) + ' — ' + s.title;
+    document.getElementById('detail-tension').textContent = s.tension;
+    document.getElementById('detail-better').textContent = s.better;
+    document.getElementById('detail-takeaway').innerHTML = s.takeaway;
+
+    document.querySelectorAll('.scenario-card').forEach((el, i) => {
+      el.classList.toggle('open', i === idx);
+    });
+
+    const panel = document.getElementById('detail-panel');
+    panel.classList.add('visible');
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function close() {
+    currentOpen = -1;
+    document.querySelectorAll('.scenario-card').forEach(el => el.classList.remove('open'));
+    document.getElementById('detail-panel').classList.remove('visible');
+  }
+</script>
+
+</body>
+</html>

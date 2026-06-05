@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Course Completion Certificate</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d0d1a;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    color: #c0c0e0;
+  }
+
+  .name-prompt {
+    text-align: center;
+    max-width: 480px;
+    margin-bottom: 24px;
+  }
+
+  .name-prompt h2 {
+    font-size: 18px;
+    color: #ffffff;
+    margin-bottom: 8px;
+  }
+
+  .name-prompt p {
+    font-size: 13px;
+    color: #7a7a9a;
+    margin-bottom: 16px;
+  }
+
+  .name-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .name-input {
+    flex: 1;
+    background: #13132a;
+    border: 1.5px solid #2a2a4a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: #ffffff;
+    font-size: 15px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .name-input:focus { border-color: #6c63ff; }
+
+  .go-btn {
+    background: linear-gradient(135deg, #6c63ff, #00c8ff);
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  /* Certificate */
+  .cert-wrap {
+    display: none;
+    width: 100%;
+    max-width: 780px;
+  }
+
+  .certificate {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(108,99,255,0.35);
+  }
+
+  .cert-header {
+    background: #0d0d1a;
+    padding: 28px 40px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .cert-org {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #6c63ff;
+  }
+
+  .cert-org-sub {
+    font-size: 11px;
+    color: #7a7a9a;
+    letter-spacing: 1px;
+    margin-top: 3px;
+  }
+
+  .cert-badge {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6c63ff, #00c8ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #fff;
+    font-weight: 800;
+    letter-spacing: -1px;
+  }
+
+  .cert-body {
+    padding: 36px 48px 32px;
+    background: #fff;
+    position: relative;
+  }
+
+  .cert-body::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #6c63ff, #00c8ff, #00c864);
+  }
+
+  .cert-presents {
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #7a7a9a;
+    margin-bottom: 8px;
+  }
+
+  .cert-title-main {
+    font-size: 28px;
+    font-weight: 700;
+    color: #0d0d1a;
+    line-height: 1.2;
+    margin-bottom: 20px;
+  }
+
+  .cert-awarded-to {
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #6c63ff;
+    margin-bottom: 6px;
+  }
+
+  .cert-name {
+    font-size: 34px;
+    font-weight: 800;
+    color: #0d0d1a;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e8e8f0;
+    padding-bottom: 16px;
+  }
+
+  .cert-description {
+    font-size: 14px;
+    color: #444;
+    line-height: 1.6;
+    margin-bottom: 28px;
+    max-width: 560px;
+  }
+
+  .cert-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+
+  .skill-pill {
+    background: #f0f0ff;
+    border: 1px solid #d0d0f0;
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #6c63ff;
+    letter-spacing: 0.5px;
+  }
+
+  .cert-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-top: 16px;
+    border-top: 1px solid #e8e8f0;
+  }
+
+  .cert-sig-line {
+    text-align: center;
+  }
+
+  .sig-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0d0d1a;
+    margin-bottom: 4px;
+    font-style: italic;
+  }
+
+  .sig-title {
+    font-size: 11px;
+    color: #7a7a9a;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-top: 1px solid #ccc;
+    padding-top: 6px;
+  }
+
+  .cert-date {
+    text-align: right;
+  }
+
+  .date-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #7a7a9a;
+    margin-bottom: 4px;
+  }
+
+  .date-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: #0d0d1a;
+  }
+
+  /* Actions */
+  .cert-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .action-btn {
+    background: linear-gradient(135deg, #6c63ff, #00c8ff);
+    border: none;
+    border-radius: 8px;
+    padding: 11px 24px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .action-btn:hover { opacity: 0.9; }
+
+  .action-btn-outline {
+    background: transparent;
+    border: 1.5px solid #2a2a4a;
+    border-radius: 8px;
+    padding: 11px 24px;
+    font-size: 13px;
+    color: #c0c0e0;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .action-btn-outline:hover { border-color: #6c63ff; color: #fff; }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    .name-prompt, .cert-actions { display: none !important; }
+    .cert-wrap { display: block !important; max-width: 100%; }
+    .certificate { box-shadow: none; border: 2px solid #e0e0f0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="name-prompt" id="name-prompt">
+  <h2>You've completed the course!</h2>
+  <p>Enter your name to generate your personalized certificate of completion.</p>
+  <div class="name-row">
+    <input type="text" id="name-input" class="name-input" placeholder="Your full name" onkeydown="if(event.key==='Enter') generate()" />
+    <button class="go-btn" onclick="generate()">Get Certificate</button>
+  </div>
+</div>
+
+<div class="cert-wrap" id="cert-wrap">
+  <div class="certificate" id="certificate">
+
+    <div class="cert-header">
+      <div>
+        <div class="cert-org">LegalShield</div>
+        <div class="cert-org-sub">Learning & Development</div>
+      </div>
+      <div class="cert-badge">AI</div>
+    </div>
+
+    <div class="cert-body">
+      <div class="cert-presents">Certificate of Completion</div>
+      <div class="cert-title-main">AI at Work:<br>Using AI Safely &amp; Effectively</div>
+
+      <div class="cert-awarded-to">Awarded to</div>
+      <div class="cert-name" id="cert-name">Your Name</div>
+
+      <div class="cert-description">
+        This certifies that the above individual has successfully completed the eLearning course
+        <em>AI at Work: Using AI Safely &amp; Effectively</em>, demonstrating foundational knowledge
+        in responsible AI use, the CRAFT prompting framework, data privacy standards, and
+        ethical judgment in AI-assisted workflows.
+      </div>
+
+      <div class="cert-skills">
+        <span class="skill-pill">CRAFT Framework</span>
+        <span class="skill-pill">Prompt Engineering</span>
+        <span class="skill-pill">AI Data Safety</span>
+        <span class="skill-pill">Ethical AI Use</span>
+        <span class="skill-pill">Hallucination Awareness</span>
+        <span class="skill-pill">AI-Assisted Communication</span>
+      </div>
+
+      <div class="cert-footer">
+        <div class="cert-sig-line">
+          <div class="sig-name">Brittany Kaminski</div>
+          <div class="sig-title">Learning & Development Specialist</div>
+        </div>
+        <div class="cert-date">
+          <div class="date-label">Date of Completion</div>
+          <div class="date-value" id="cert-date"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="cert-actions">
+    <button class="action-btn" onclick="window.print()">Print / Save as PDF</button>
+    <button class="action-btn-outline" onclick="reset()">Start Over</button>
+  </div>
+</div>
+
+<script>
+  function generate() {
+    const name = document.getElementById('name-input').value.trim();
+    if (!name) return;
+
+    document.getElementById('cert-name').textContent = name;
+
+    const now = new Date();
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('cert-date').textContent = months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
+
+    document.getElementById('name-prompt').style.display = 'none';
+    document.getElementById('cert-wrap').style.display = 'block';
+  }
+
+  function reset() {
+    document.getElementById('name-input').value = '';
+    document.getElementById('name-prompt').style.display = 'block';
+    document.getElementById('cert-wrap').style.display = 'none';
+  }
+</script>
+
+</body>
+</html>

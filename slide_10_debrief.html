@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slide 10 — Scene 3 Debrief</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d0d1a;
+    font-family: 'Inter', sans-serif;
+    color: #fff;
+    width: 960px;
+    height: 540px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .bg-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(108,99,255,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(108,99,255,0.05) 1px, transparent 1px);
+    background-size: 30px 30px;
+    pointer-events: none;
+  }
+
+  .glow {
+    position: absolute;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(108,99,255,0.1) 0%, transparent 70%);
+    bottom: -150px; right: -100px;
+    pointer-events: none;
+  }
+
+  /* SIDEBAR ACCENT */
+  .sidebar {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 5px;
+    background: linear-gradient(180deg, #6c63ff, #00c8ff);
+  }
+
+  /* TOP BAR */
+  .top-bar {
+    position: relative;
+    z-index: 2;
+    padding: 20px 48px 0 48px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: 5px;
+  }
+  .scene-pill {
+    background: rgba(108,99,255,0.15);
+    border: 1px solid rgba(108,99,255,0.3);
+    border-radius: 100px;
+    padding: 4px 12px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #6c63ff;
+    font-weight: 600;
+  }
+  .top-bar .divider { color: #2a2a4a; font-size: 14px; }
+  .top-bar .slide-label { font-size: 11px; color: #3a3a5a; letter-spacing: 1px; }
+
+  /* MAIN CONTENT */
+  .content {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 28px 80px 28px 56px;
+    margin-left: 5px;
+  }
+
+  .eyebrow {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #6c63ff;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .eyebrow::before {
+    content: '';
+    display: block;
+    width: 24px; height: 2px;
+    background: #6c63ff;
+  }
+
+  h1 {
+    font-size: 36px;
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 20px;
+    color: #fff;
+  }
+  h1 span {
+    background: linear-gradient(135deg, #6c63ff, #00c8ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .body-text {
+    font-size: 16px;
+    color: #7a7a9a;
+    line-height: 1.75;
+    max-width: 640px;
+    margin-bottom: 32px;
+  }
+  .body-text strong { color: #c0c0e0; }
+
+  /* QUOTE CARD */
+  .quote-card {
+    background: rgba(108,99,255,0.07);
+    border: 1px solid rgba(108,99,255,0.2);
+    border-left: 4px solid #6c63ff;
+    border-radius: 0 12px 12px 0;
+    padding: 20px 28px;
+    max-width: 640px;
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .quote-card::before {
+    content: '"';
+    position: absolute;
+    top: -10px; right: 20px;
+    font-size: 100px;
+    color: rgba(108,99,255,0.1);
+    font-family: Georgia, serif;
+    line-height: 1;
+  }
+  .quote-avatar {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6c63ff, #00c8ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    border: 2px solid rgba(108,99,255,0.4);
+  }
+  .quote-body { flex: 1; }
+  .quote-text {
+    font-size: 15px;
+    color: #c0c0e0;
+    line-height: 1.65;
+    font-style: italic;
+    margin-bottom: 10px;
+  }
+  .quote-text strong { color: #fff; font-style: normal; }
+  .quote-attribution {
+    font-size: 11px;
+    color: #6c63ff;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* KEY TAKEAWAY CHIPS */
+  .chips {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .chip {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid #2a2a4a;
+    border-radius: 100px;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: #7a7a9a;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .chip .chip-icon { font-size: 13px; }
+
+  /* BOTTOM PROGRESS */
+  .progress-row {
+    position: absolute;
+    bottom: 0; left: 5px; right: 0;
+    height: 3px;
+    background: #1a1a2e;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 40%;
+    background: linear-gradient(90deg, #6c63ff, #00c8ff);
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="glow"></div>
+<div class="sidebar"></div>
+
+<div class="top-bar">
+  <div class="scene-pill">Scene 3 Debrief</div>
+  <span class="divider">·</span>
+  <span class="slide-label">Slide 10 of 25</span>
+</div>
+
+<div class="content">
+  <div class="eyebrow">Key Takeaway</div>
+
+  <h1>The key takeaway<br>from <span>Scene 3:</span></h1>
+
+  <div class="chips">
+    <div class="chip"><span class="chip-icon">⚡</span>AI works best with clear tasks</div>
+    <div class="chip"><span class="chip-icon">🔒</span>Never use sensitive member data</div>
+    <div class="chip"><span class="chip-icon">👁️</span>Always review before you use it</div>
+  </div>
+
+  <p class="body-text">
+    AI is fastest when the task is <strong>clear and doesn't involve sensitive data</strong>. Your job is to guide it — and <strong>always review before you use it</strong>.
+  </p>
+
+  <div class="quote-card">
+    <div class="quote-avatar">👨🏾‍💼</div>
+    <div class="quote-body">
+      <p class="quote-text">"Think of AI like a <strong>brilliant new hire</strong>. Smart and fast — but needs clear instructions and supervision."</p>
+      <div class="quote-attribution">— Marcus · Member Services</div>
+    </div>
+  </div>
+</div>
+
+<div class="progress-row">
+  <div class="progress-fill"></div>
+</div>
+
+</body>
+</html>

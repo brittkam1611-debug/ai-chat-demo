@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRAFT Prompt Builder</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d0d1a;
+    color: #c0c0e0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    padding: 20px;
+    min-height: 100vh;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #6c63ff;
+    text-align: center;
+    margin-bottom: 6px;
+  }
+
+  h1 {
+    font-size: 20px;
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-size: 12px;
+    color: #7a7a9a;
+    text-align: center;
+    margin-bottom: 22px;
+  }
+
+  .builder-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    max-width: 880px;
+    margin: 0 auto;
+  }
+
+  .dropdowns-panel { display: flex; flex-direction: column; gap: 12px; }
+
+  .dropdown-row {
+    background: #13132a;
+    border: 1.5px solid #2a2a4a;
+    border-radius: 10px;
+    padding: 14px 16px;
+    transition: border-color 0.2s;
+  }
+
+  .dropdown-row.active { border-color: #6c63ff; }
+
+  .dropdown-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .craft-letter {
+    width: 22px; height: 22px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    color: #0d0d1a;
+    flex-shrink: 0;
+  }
+
+  .c-bg { background: #6c63ff; }
+  .r-bg { background: #00c8ff; }
+  .a-bg { background: #00c864; }
+  .f-bg { background: #ffb800; }
+  .t-bg { background: #ff4757; }
+
+  .dropdown-hint { color: #7a7a9a; font-size: 11px; }
+
+  select {
+    width: 100%;
+    background: #0d0d1a;
+    border: 1px solid #2a2a4a;
+    border-radius: 6px;
+    padding: 9px 12px;
+    color: #c0c0e0;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237a7a9a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    outline: none;
+  }
+
+  select:focus { border-color: #6c63ff; }
+
+  /* Output panel */
+  .output-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .output-card {
+    background: #13132a;
+    border: 1.5px solid #2a2a4a;
+    border-radius: 10px;
+    padding: 18px;
+    flex: 1;
+  }
+
+  .output-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #6c63ff;
+    margin-bottom: 12px;
+  }
+
+  .prompt-output {
+    font-size: 13px;
+    line-height: 1.7;
+    color: #c0c0e0;
+    min-height: 120px;
+  }
+
+  .prompt-output .placeholder {
+    color: #7a7a9a;
+    font-style: italic;
+  }
+
+  .prompt-part {
+    display: inline;
+  }
+
+  .highlight-c { color: #a29bff; }
+  .highlight-r { color: #00c8ff; }
+  .highlight-a { color: #00c864; }
+  .highlight-f { color: #ffb800; }
+  .highlight-t { color: #ff9f9f; }
+
+  .quality-bar {
+    margin-top: 12px;
+  }
+
+  .quality-label {
+    font-size: 11px;
+    color: #7a7a9a;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .bar-track {
+    height: 6px;
+    background: #1a1a35;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #6c63ff, #00c8ff);
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .copy-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #6c63ff, #00c8ff);
+    border: none;
+    border-radius: 7px;
+    padding: 11px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .copy-btn:hover { opacity: 0.9; }
+  .copy-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .copy-feedback {
+    text-align: center;
+    font-size: 11px;
+    color: #00c864;
+    margin-top: 6px;
+    min-height: 16px;
+  }
+
+  .reset-btn {
+    background: transparent;
+    border: 1px solid #2a2a4a;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 12px;
+    color: #7a7a9a;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+  }
+  .reset-btn:hover { border-color: #6c63ff; color: #c0c0e0; }
+</style>
+</head>
+<body>
+
+<div class="eyebrow">Scene 4 — CRAFT Framework</div>
+<h1>Build Your Prompt</h1>
+<p class="subtitle">Choose each CRAFT element to assemble a real-world prompt. Watch it come together on the right.</p>
+
+<div class="builder-layout">
+
+  <!-- LEFT: Dropdowns -->
+  <div class="dropdowns-panel">
+
+    <div class="dropdown-row" id="row-c">
+      <div class="dropdown-label">
+        <span class="craft-letter c-bg">C</span>
+        <span class="highlight-c">Context</span>
+        <span class="dropdown-hint">— What's the situation?</span>
+      </div>
+      <select id="sel-c" onchange="build()">
+        <option value="">-- Choose a context --</option>
+        <option value="A LegalShield member just called in upset about a billing issue that wasn't resolved last week.">Member called in — upset about an unresolved billing issue</option>
+        <option value="I'm preparing for a team meeting to review Q2 member satisfaction scores.">Team meeting to review Q2 satisfaction scores</option>
+        <option value="A new associate needs onboarding help and I have 10 minutes to write them a welcome message.">New associate needs a quick welcome message</option>
+        <option value="I need to explain a complex legal benefit to a member who isn't sure how it works.">Explaining a complex benefit to a confused member</option>
+      </select>
+    </div>
+
+    <div class="dropdown-row" id="row-r">
+      <div class="dropdown-label">
+        <span class="craft-letter r-bg">R</span>
+        <span class="highlight-r">Role</span>
+        <span class="dropdown-hint">— Who should AI be?</span>
+      </div>
+      <select id="sel-r" onchange="build()">
+        <option value="">-- Assign a role --</option>
+        <option value="Act as an experienced LegalShield member services representative">Experienced member services rep</option>
+        <option value="Act as a professional business writer who is warm but concise">Professional business writer — warm but concise</option>
+        <option value="Act as a team coach who gives encouragement alongside feedback">Team coach — encouraging + constructive</option>
+        <option value="Act as a plain-language explainer who makes complex topics easy to understand">Plain-language explainer for complex topics</option>
+      </select>
+    </div>
+
+    <div class="dropdown-row" id="row-a">
+      <div class="dropdown-label">
+        <span class="craft-letter a-bg">A</span>
+        <span class="highlight-a">Action</span>
+        <span class="dropdown-hint">— What do you want?</span>
+      </div>
+      <select id="sel-a" onchange="build()">
+        <option value="">-- Describe the action --</option>
+        <option value="Draft a follow-up email that acknowledges their frustration, summarizes what was resolved, and provides clear next steps.">Draft a follow-up email acknowledging frustration + next steps</option>
+        <option value="Write a 3-bullet summary of the key themes and one recommendation for improvement.">Write a 3-bullet summary + one recommendation</option>
+        <option value="Write a short, friendly welcome message that sets expectations for their first week.">Write a short, friendly welcome message</option>
+        <option value="Explain the benefit in 2-3 sentences using everyday language and one concrete example.">Explain in 2-3 sentences with a concrete example</option>
+      </select>
+    </div>
+
+    <div class="dropdown-row" id="row-f">
+      <div class="dropdown-label">
+        <span class="craft-letter f-bg">F</span>
+        <span class="highlight-f">Format</span>
+        <span class="dropdown-hint">— How should it look?</span>
+      </div>
+      <select id="sel-f" onchange="build()">
+        <option value="">-- Pick a format --</option>
+        <option value="Format: Professional email with subject line, greeting, body, and closing.">Professional email with subject line + greeting + closing</option>
+        <option value="Format: Bullet points, no more than 3, each one sentence.">Bullet points — max 3, one sentence each</option>
+        <option value="Format: 2 short paragraphs, conversational tone, no jargon.">2 short paragraphs, conversational, no jargon</option>
+        <option value="Format: Single plain paragraph, under 75 words.">Single paragraph, under 75 words</option>
+      </select>
+    </div>
+
+    <div class="dropdown-row" id="row-t">
+      <div class="dropdown-label">
+        <span class="craft-letter t-bg">T</span>
+        <span class="highlight-t">Tone</span>
+        <span class="dropdown-hint">— What's the feel?</span>
+      </div>
+      <select id="sel-t" onchange="build()">
+        <option value="">-- Set the tone --</option>
+        <option value="Tone: Empathetic and solution-focused — this member has had a frustrating experience.">Empathetic + solution-focused</option>
+        <option value="Tone: Confident and data-driven — this is an internal professional summary.">Confident + data-driven (internal)</option>
+        <option value="Tone: Warm and encouraging — this person is new and may feel overwhelmed.">Warm + encouraging (new person)</option>
+        <option value="Tone: Clear and reassuring — the goal is to reduce anxiety and build trust.">Clear + reassuring</option>
+      </select>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: Output -->
+  <div class="output-panel">
+    <div class="output-card">
+      <div class="output-label">Your Assembled Prompt</div>
+      <div class="prompt-output" id="prompt-output">
+        <span class="placeholder">Your prompt will appear here as you make selections...</span>
+      </div>
+
+      <div class="quality-bar">
+        <div class="quality-label">
+          <span>Prompt strength</span>
+          <span id="quality-pct">0%</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" id="bar-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="copy-btn" id="copy-btn" disabled onclick="copyPrompt()">Copy Prompt</button>
+    <div class="copy-feedback" id="copy-feedback"></div>
+    <button class="reset-btn" onclick="resetAll()">Reset</button>
+  </div>
+
+</div>
+
+<script>
+  const parts = {
+    c: { el: 'sel-c', cls: 'highlight-c', prefix: '' },
+    r: { el: 'sel-r', cls: 'highlight-r', prefix: ' ' },
+    a: { el: 'sel-a', cls: 'highlight-a', prefix: ' ' },
+    f: { el: 'sel-f', cls: 'highlight-f', prefix: ' ' },
+    t: { el: 'sel-t', cls: 'highlight-t', prefix: ' ' },
+  };
+
+  function build() {
+    const vals = {
+      c: document.getElementById('sel-c').value,
+      r: document.getElementById('sel-r').value,
+      a: document.getElementById('sel-a').value,
+      f: document.getElementById('sel-f').value,
+      t: document.getElementById('sel-t').value,
+    };
+
+    const filled = Object.values(vals).filter(v => v).length;
+    const pct = Math.round((filled / 5) * 100);
+
+    document.getElementById('bar-fill').style.width = pct + '%';
+    document.getElementById('quality-pct').textContent = pct + '%';
+
+    // Highlight active rows
+    ['c','r','a','f','t'].forEach(k => {
+      const row = document.getElementById('row-' + k);
+      row.classList.toggle('active', !!vals[k]);
+    });
+
+    const out = document.getElementById('prompt-output');
+
+    if (filled === 0) {
+      out.innerHTML = '<span class="placeholder">Your prompt will appear here as you make selections...</span>';
+      document.getElementById('copy-btn').disabled = true;
+      return;
+    }
+
+    let html = '';
+    if (vals.c) html += `<span class="highlight-c">${vals.c}</span>`;
+    if (vals.r) html += ` <span class="highlight-r">${vals.r}.</span>`;
+    if (vals.a) html += ` <span class="highlight-a">${vals.a}</span>`;
+    if (vals.f) html += ` <span class="highlight-f">${vals.f}</span>`;
+    if (vals.t) html += ` <span class="highlight-t">${vals.t}</span>`;
+
+    out.innerHTML = html;
+    document.getElementById('copy-btn').disabled = filled < 5;
+  }
+
+  function copyPrompt() {
+    const text = document.getElementById('prompt-output').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      document.getElementById('copy-feedback').textContent = 'Copied! Paste this into ChatGPT, Copilot, or your AI tool of choice.';
+      setTimeout(() => { document.getElementById('copy-feedback').textContent = ''; }, 3000);
+    });
+  }
+
+  function resetAll() {
+    ['sel-c','sel-r','sel-a','sel-f','sel-t'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    build();
+  }
+</script>
+
+</body>
+</html>

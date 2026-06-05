@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ethics Poll — What Would You Do?</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d0d1a;
+    color: #c0c0e0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    padding: 24px 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #ffb800;
+    text-align: center;
+    margin-bottom: 6px;
+  }
+
+  h1 {
+    font-size: 20px;
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 14px;
+  }
+
+  .scenario-box {
+    background: #13132a;
+    border: 1.5px solid #2a2a4a;
+    border-radius: 10px;
+    padding: 18px 22px;
+    max-width: 640px;
+    width: 100%;
+    margin-bottom: 22px;
+  }
+
+  .scenario-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #ffb800;
+    margin-bottom: 8px;
+  }
+
+  .scenario-text {
+    font-size: 14px;
+    line-height: 1.65;
+    color: #c0c0e0;
+  }
+
+  .options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 640px;
+    width: 100%;
+    margin-bottom: 16px;
+  }
+
+  .option-btn {
+    background: #13132a;
+    border: 1.5px solid #2a2a4a;
+    border-radius: 8px;
+    padding: 14px 18px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    color: #c0c0e0;
+    font-size: 13.5px;
+    line-height: 1.45;
+  }
+
+  .option-btn:hover {
+    border-color: #6c63ff55;
+    background: #16163a;
+  }
+
+  .option-btn.selected {
+    border-color: #6c63ff;
+    background: #18183a;
+    color: #ffffff;
+  }
+
+  .submit-btn {
+    width: 100%;
+    max-width: 640px;
+    background: linear-gradient(135deg, #6c63ff, #00c8ff);
+    border: none;
+    border-radius: 8px;
+    padding: 13px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .submit-btn:hover { opacity: 0.9; }
+  .submit-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* Results */
+  .results {
+    display: none;
+    max-width: 640px;
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  .result-item {
+    background: #13132a;
+    border: 1.5px solid #2a2a4a;
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+  }
+
+  .result-item.best {
+    border-color: #00c864;
+    background: #0d1f18;
+  }
+
+  .result-item.okay {
+    border-color: #ffb800;
+    background: #1a1508;
+  }
+
+  .result-item.problematic {
+    border-color: #ff4757;
+    background: #1f0d12;
+  }
+
+  .result-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .tag-best { color: #00c864; }
+  .tag-okay { color: #ffb800; }
+  .tag-prob { color: #ff4757; }
+
+  .result-option-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 8px;
+  }
+
+  .result-commentary {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #c0c0e0;
+  }
+
+  .your-choice-flag {
+    display: inline-block;
+    background: #6c63ff;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 3px;
+    letter-spacing: 1px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  .retry-btn {
+    display: block;
+    margin: 12px auto 0;
+    background: transparent;
+    border: 1px solid #2a2a4a;
+    border-radius: 6px;
+    padding: 8px 20px;
+    font-size: 12px;
+    color: #7a7a9a;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .retry-btn:hover { border-color: #6c63ff; color: #c0c0e0; }
+</style>
+</head>
+<body>
+
+<div class="eyebrow">Scene 6 — Ethics & Judgment</div>
+<h1>What Would You Do?</h1>
+
+<div class="scenario-box">
+  <div class="scenario-label">The Situation</div>
+  <div class="scenario-text">
+    Marcus just got off the phone with a member going through a difficult divorce. The member is emotional and confused about their legal benefits. Marcus wants to send a helpful, warm follow-up email — but he's behind on 12 other cases and has 20 minutes left in his day. He considers using AI to write the email.
+  </div>
+</div>
+
+<div class="options-list" id="options-list">
+
+  <button class="option-btn" data-val="a" onclick="select(this)">
+    A. Paste the member's name, situation details, and emotional state directly into ChatGPT and send the result as-is to save time.
+  </button>
+
+  <button class="option-btn" data-val="b" onclick="select(this)">
+    B. Use AI with a generic prompt — no personal details — to draft a template, then personalize the emotional opening and closing himself before sending.
+  </button>
+
+  <button class="option-btn" data-val="c" onclick="select(this)">
+    C. Skip AI entirely — this situation deserves a fully human response, even if it takes more time.
+  </button>
+
+  <button class="option-btn" data-val="d" onclick="select(this)">
+    D. Copy a previous email he sent to a similar member, make minimal edits, and send it without AI at all.
+  </button>
+
+</div>
+
+<button class="submit-btn" id="submit-btn" disabled onclick="submitPoll()">See What Works Best</button>
+
+<div class="results" id="results">
+
+  <div class="result-item best">
+    <div class="result-tag tag-best">BEST APPROACH</div>
+    <div class="result-option-text">
+      B. Use AI with a generic prompt, then personalize
+      <span class="your-choice-flag" id="flag-b" style="display:none">YOUR CHOICE</span>
+    </div>
+    <div class="result-commentary">
+      This is the ideal blend. AI handles the structural heavy lifting — drafting clear, professional language quickly — while Marcus keeps personal details out of the tool and adds the human touch where it matters most. It's fast AND careful AND warm. This is what skilled AI use looks like.
+    </div>
+  </div>
+
+  <div class="result-item okay">
+    <div class="result-tag tag-okay">ACCEPTABLE — WITH CAVEATS</div>
+    <div class="result-option-text">
+      C. Skip AI — write it fully yourself
+      <span class="your-choice-flag" id="flag-c" style="display:none">YOUR CHOICE</span>
+    </div>
+    <div class="result-commentary">
+      Totally valid. For high-sensitivity situations, a fully human response is sometimes the right call — and there's no data risk. The only downside is time. As you build confidence with AI, you'll find ways to let it help on the structural parts while keeping your voice at the center.
+    </div>
+  </div>
+
+  <div class="result-item okay">
+    <div class="result-tag tag-okay">ACCEPTABLE — BUT RISKY</div>
+    <div class="result-option-text">
+      D. Adapt a previous email
+      <span class="your-choice-flag" id="flag-d" style="display:none">YOUR CHOICE</span>
+    </div>
+    <div class="result-commentary">
+      Using a previous email as a template is a reasonable workaround — but it only works if you edit it carefully. Copy-paste errors are common under pressure, and a mismatched detail (wrong name, wrong issue) can erode member trust fast. If you go this route, slow down and read it through before sending.
+    </div>
+  </div>
+
+  <div class="result-item problematic">
+    <div class="result-tag tag-prob">PROBLEMATIC</div>
+    <div class="result-option-text">
+      A. Paste member details directly into ChatGPT and send as-is
+      <span class="your-choice-flag" id="flag-a" style="display:none">YOUR CHOICE</span>
+    </div>
+    <div class="result-commentary">
+      Two issues: First, pasting a member's name, case details, and emotional state into an external AI tool violates data privacy — that information is now outside your control. Second, sending without review risks sending generic, emotionally flat text to someone who needs genuine support. Speed at this cost isn't worth it.
+    </div>
+  </div>
+
+  <button class="retry-btn" onclick="reset()">Try Again</button>
+</div>
+
+<script>
+  let chosen = null;
+
+  function select(btn) {
+    document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    chosen = btn.dataset.val;
+    document.getElementById('submit-btn').disabled = false;
+  }
+
+  function submitPoll() {
+    if (chosen) {
+      document.getElementById('flag-' + chosen).style.display = 'inline-block';
+    }
+    document.getElementById('options-list').style.display = 'none';
+    document.getElementById('submit-btn').style.display = 'none';
+    document.getElementById('results').style.display = 'block';
+  }
+
+  function reset() {
+    chosen = null;
+    document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+    ['a','b','c','d'].forEach(id => {
+      document.getElementById('flag-' + id).style.display = 'none';
+    });
+    document.getElementById('options-list').style.display = 'flex';
+    document.getElementById('submit-btn').style.display = 'block';
+    document.getElementById('submit-btn').disabled = true;
+    document.getElementById('results').style.display = 'none';
+  }
+</script>
+
+</body>
+</html>

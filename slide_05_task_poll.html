@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Task Sort Poll</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d0d1a;
+    color: #c0c0e0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    padding: 24px 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #6c63ff;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-size: 20px;
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    font-size: 12px;
+    color: #7a7a9a;
+    text-align: center;
+    margin-bottom: 26px;
+    max-width: 500px;
+  }
+
+  .task-list {
+    width: 100%;
+    max-width: 620px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .task-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #13132a;
+    border: 1.5px solid #2a2a4a;
+    border-radius: 8px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+  }
+
+  .task-item:hover {
+    border-color: #6c63ff55;
+  }
+
+  .task-item.selected {
+    border-color: #6c63ff;
+    background: #18183a;
+  }
+
+  .checkbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #2a2a4a;
+    border-radius: 4px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .task-item.selected .checkbox {
+    background: #6c63ff;
+    border-color: #6c63ff;
+  }
+
+  .checkmark {
+    display: none;
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .task-item.selected .checkmark { display: block; }
+
+  .task-text {
+    font-size: 14px;
+    color: #c0c0e0;
+    line-height: 1.4;
+  }
+
+  .submit-btn {
+    width: 100%;
+    max-width: 620px;
+    background: linear-gradient(135deg, #6c63ff, #00c8ff);
+    border: none;
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #ffffff;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .submit-btn:hover { opacity: 0.9; }
+  .submit-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* Results */
+  .results {
+    display: none;
+    width: 100%;
+    max-width: 620px;
+    margin-top: 4px;
+  }
+
+  .result-group {
+    margin-bottom: 20px;
+  }
+
+  .result-group-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .result-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .result-item-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .result-item-text { color: #c0c0e0; }
+  .result-item-note { color: #7a7a9a; font-size: 11px; margin-top: 3px; }
+
+  .ai-yes { background: #0d1f18; border: 1px solid #00c86440; }
+  .ai-yes .result-group-label { color: #00c864; }
+
+  .ai-no { background: #1f0d12; border: 1px solid #ff475740; }
+  .ai-no .result-group-label { color: #ff4757; }
+
+  .ai-partial { background: #1a1508; border: 1px solid #ffb80040; }
+  .ai-partial .result-group-label { color: #ffb800; }
+
+  .summary-box {
+    background: #13132a;
+    border: 1px solid #6c63ff44;
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-top: 6px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #c0c0e0;
+  }
+
+  .summary-box strong { color: #6c63ff; }
+
+  .retry-btn {
+    display: block;
+    margin: 16px auto 0;
+    background: transparent;
+    border: 1px solid #2a2a4a;
+    border-radius: 6px;
+    padding: 8px 20px;
+    font-size: 12px;
+    color: #7a7a9a;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .retry-btn:hover { border-color: #6c63ff; color: #c0c0e0; }
+</style>
+</head>
+<body>
+
+<div class="eyebrow">Scene 2 — AI Can &amp; Can't Do</div>
+<h1>What Can AI Actually Help With?</h1>
+<p class="subtitle">Select all the tasks you think AI can do well at work, then submit to see how you did.</p>
+
+<div id="poll-area">
+  <div class="task-list" id="task-list">
+
+    <div class="task-item" onclick="toggle(this, 'draft-email')">
+      <div class="checkbox"><span class="checkmark">&#10003;</span></div>
+      <div class="task-text">Draft a routine email to a member explaining next steps</div>
+    </div>
+
+    <div class="task-item" onclick="toggle(this, 'decide-legal')">
+      <div class="checkbox"><span class="checkmark">&#10003;</span></div>
+      <div class="task-text">Make a legal determination on a member's case</div>
+    </div>
+
+    <div class="task-item" onclick="toggle(this, 'summarize-notes')">
+      <div class="checkbox"><span class="checkmark">&#10003;</span></div>
+      <div class="task-text">Summarize meeting notes into bullet points</div>
+    </div>
+
+    <div class="task-item" onclick="toggle(this, 'access-data')">
+      <div class="checkbox"><span class="checkmark">&#10003;</span></div>
+      <div class="task-text">Access LegalShield's internal member database directly</div>
+    </div>
+
+    <div class="task-item" onclick="toggle(this, 'brainstorm')">
+      <div class="checkbox"><span class="checkmark">&#10003;</span></div>
+      <div class="task-text">Brainstorm ideas for a team training or event</div>
+    </div>
+
+    <div class="task-item" onclick="toggle(this, 'guarantee-result')">
+      <div class="checkbox"><span class="checkmark">&#10003;</span></div>
+      <div class="task-text">Guarantee the outcome of a legal situation for a member</div>
+    </div>
+
+    <div class="task-item" onclick="toggle(this, 'rewrite-tone')">
+      <div class="checkbox"><span class="checkmark">&#10003;</span></div>
+      <div class="task-text">Rewrite a message to sound warmer or more professional</div>
+    </div>
+
+    <div class="task-item" onclick="toggle(this, 'real-time')">
+      <div class="checkbox"><span class="checkmark">&#10003;</span></div>
+      <div class="task-text">Pull real-time data from the internet or live systems</div>
+    </div>
+
+    <div class="task-item" onclick="toggle(this, 'role-play')">
+      <div class="checkbox"><span class="checkmark">&#10003;</span></div>
+      <div class="task-text">Simulate a difficult member call so you can practice your response</div>
+    </div>
+
+  </div>
+
+  <button class="submit-btn" id="submit-btn" disabled onclick="submitPoll()">See Results</button>
+</div>
+
+<div class="results" id="results">
+
+  <div class="result-group ai-yes">
+    <div class="result-group-label">
+      <span class="dot" style="background:#00c864"></span>
+      AI CAN DO THESE WELL
+    </div>
+    <div class="result-item" id="r-draft-email" style="display:none">
+      <div class="result-item-icon">&#10003;</div>
+      <div>
+        <div class="result-item-text">Draft a routine email to a member explaining next steps</div>
+        <div class="result-item-note">Great use case. With the right prompt, AI drafts fast, clear, professional email — then you review before sending.</div>
+      </div>
+    </div>
+    <div class="result-item" id="r-summarize-notes" style="display:none">
+      <div class="result-item-icon">&#10003;</div>
+      <div>
+        <div class="result-item-text">Summarize meeting notes into bullet points</div>
+        <div class="result-item-note">A classic AI strength — organizing and condensing information quickly and accurately.</div>
+      </div>
+    </div>
+    <div class="result-item" id="r-brainstorm" style="display:none">
+      <div class="result-item-icon">&#10003;</div>
+      <div>
+        <div class="result-item-text">Brainstorm ideas for a team training or event</div>
+        <div class="result-item-note">AI excels as an idea generator. Use it to expand your thinking, then apply your judgment to choose the best options.</div>
+      </div>
+    </div>
+    <div class="result-item" id="r-rewrite-tone" style="display:none">
+      <div class="result-item-icon">&#10003;</div>
+      <div>
+        <div class="result-item-text">Rewrite a message to sound warmer or more professional</div>
+        <div class="result-item-note">One of AI's strongest capabilities. Tell it the tone you want and it adjusts instantly.</div>
+      </div>
+    </div>
+    <div class="result-item" id="r-role-play" style="display:none">
+      <div class="result-item-icon">&#10003;</div>
+      <div>
+        <div class="result-item-text">Simulate a difficult member call so you can practice your response</div>
+        <div class="result-item-note">Excellent for practice scenarios. AI can play any persona and give realistic responses for training purposes.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="result-group ai-no">
+    <div class="result-group-label">
+      <span class="dot" style="background:#ff4757"></span>
+      AI CANNOT DO THESE
+    </div>
+    <div class="result-item" id="r-decide-legal" style="display:none">
+      <div class="result-item-icon">&#10007;</div>
+      <div>
+        <div class="result-item-text">Make a legal determination on a member's case</div>
+        <div class="result-item-note">AI cannot practice law, make binding decisions, or take professional accountability. That's a licensed attorney's role — always.</div>
+      </div>
+    </div>
+    <div class="result-item" id="r-access-data" style="display:none">
+      <div class="result-item-icon">&#10007;</div>
+      <div>
+        <div class="result-item-text">Access LegalShield's internal member database directly</div>
+        <div class="result-item-note">AI tools have no access to internal systems. What you type IN is all they know. They cannot retrieve real data from your platforms.</div>
+      </div>
+    </div>
+    <div class="result-item" id="r-guarantee-result" style="display:none">
+      <div class="result-item-icon">&#10007;</div>
+      <div>
+        <div class="result-item-text">Guarantee the outcome of a legal situation for a member</div>
+        <div class="result-item-note">No tool, AI or otherwise, can guarantee legal outcomes. AI outputs are general, not case-specific legal advice.</div>
+      </div>
+    </div>
+    <div class="result-item" id="r-real-time" style="display:none">
+      <div class="result-item-icon">&#10007;</div>
+      <div>
+        <div class="result-item-text">Pull real-time data from the internet or live systems</div>
+        <div class="result-item-note">Standard AI models work from their training data, not live feeds. Some tools have plugins for web search — but it's not automatic or real-time.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="summary-box">
+    <strong>The takeaway:</strong> AI is a powerful assistant for drafting, summarizing, brainstorming, and practice — but it has no access to your systems, no legal authority, and no real-time awareness. Your judgment, your accountability.
+  </div>
+
+  <button class="retry-btn" onclick="reset()">Try Again</button>
+</div>
+
+<script>
+  const AI_YES = new Set(['draft-email', 'summarize-notes', 'brainstorm', 'rewrite-tone', 'role-play']);
+  const AI_NO  = new Set(['decide-legal', 'access-data', 'guarantee-result', 'real-time']);
+  const selected = new Set();
+
+  function toggle(el, id) {
+    el.classList.toggle('selected');
+    if (el.classList.contains('selected')) selected.add(id);
+    else selected.delete(id);
+    document.getElementById('submit-btn').disabled = selected.size === 0;
+  }
+
+  function submitPoll() {
+    // Show all result items
+    const allIds = [...AI_YES, ...AI_NO];
+    allIds.forEach(id => {
+      document.getElementById('r-' + id).style.display = 'flex';
+    });
+
+    document.getElementById('poll-area').style.display = 'none';
+    document.getElementById('results').style.display = 'block';
+  }
+
+  function reset() {
+    document.querySelectorAll('.task-item').forEach(el => el.classList.remove('selected'));
+    selected.clear();
+    document.getElementById('submit-btn').disabled = true;
+    document.getElementById('poll-area').style.display = 'block';
+    document.getElementById('results').style.display = 'none';
+  }
+</script>
+
+</body>
+</html>
