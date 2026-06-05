@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slide 09 — Sort These Tasks</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d0d1a;
+    font-family: 'Inter', sans-serif;
+    color: #fff;
+    width: 960px;
+    height: 540px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* BG GRID */
+  .bg-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(108,99,255,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(108,99,255,0.05) 1px, transparent 1px);
+    background-size: 30px 30px;
+    pointer-events: none;
+  }
+
+  /* HEADER */
+  .header {
+    position: relative;
+    z-index: 2;
+    padding: 20px 40px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #1e1e2e;
+  }
+  .header-left .eyebrow {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #6c63ff;
+    margin-bottom: 4px;
+  }
+  .header-left h1 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #fff;
+  }
+  .header-left h1 span { color: #6c63ff; }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #5a5a7a;
+  }
+  .score-badge {
+    background: rgba(108,99,255,0.15);
+    border: 1px solid rgba(108,99,255,0.3);
+    border-radius: 100px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: #a0a0ff;
+    font-weight: 600;
+  }
+
+  /* MAIN LAYOUT */
+  .main {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr 200px 1fr;
+    gap: 0;
+    height: 440px;
+    padding: 16px 24px;
+  }
+
+  /* DRAG ITEMS BANK */
+  .items-bank {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 12px;
+    justify-content: center;
+  }
+
+  .drag-item {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid #2a2a4a;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #c0c0e0;
+    cursor: grab;
+    user-select: none;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    line-height: 1.3;
+  }
+  .drag-item:active { cursor: grabbing; }
+  .drag-item:hover {
+    border-color: #6c63ff;
+    background: rgba(108,99,255,0.1);
+    transform: translateY(-1px);
+  }
+  .drag-item.dragging {
+    opacity: 0.4;
+    transform: scale(0.98);
+  }
+  .drag-item .drag-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .drag-item.placed {
+    opacity: 0.3;
+    pointer-events: none;
+    cursor: default;
+  }
+
+  /* CENTER DIVIDER */
+  .center-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+  .center-col .instruction {
+    font-size: 10px;
+    color: #3a3a5a;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: center;
+    writing-mode: horizontal-tb;
+  }
+  .drag-arrow {
+    font-size: 20px;
+    color: #2a2a4a;
+    animation: pulse-arrow 2s infinite;
+  }
+  @keyframes pulse-arrow {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  /* DROP ZONES */
+  .drop-zones {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0 12px;
+  }
+
+  .drop-zone {
+    flex: 1;
+    border-radius: 12px;
+    border: 2px dashed;
+    padding: 12px;
+    transition: all 0.2s;
+    position: relative;
+    overflow-y: auto;
+  }
+  .drop-zone.ai-zone {
+    border-color: rgba(108,99,255,0.3);
+    background: rgba(108,99,255,0.05);
+  }
+  .drop-zone.human-zone {
+    border-color: rgba(0,200,100,0.3);
+    background: rgba(0,200,100,0.05);
+  }
+  .drop-zone.drag-over.ai-zone {
+    border-color: #6c63ff;
+    background: rgba(108,99,255,0.12);
+    transform: scale(1.01);
+  }
+  .drop-zone.drag-over.human-zone {
+    border-color: #00c864;
+    background: rgba(0,200,100,0.1);
+    transform: scale(1.01);
+  }
+  .zone-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .zone-icon {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .ai-zone .zone-icon { background: rgba(108,99,255,0.2); }
+  .human-zone .zone-icon { background: rgba(0,200,100,0.15); }
+  .zone-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .ai-zone .zone-label { color: #6c63ff; }
+  .human-zone .zone-label { color: #00c864; }
+  .zone-sublabel {
+    font-size: 10px;
+    color: #3a3a5a;
+    margin-left: auto;
+  }
+  .zone-items {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 40px;
+  }
+  .zone-empty-hint {
+    font-size: 11px;
+    color: #2a2a4a;
+    text-align: center;
+    padding: 8px;
+    font-style: italic;
+  }
+
+  .placed-item {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid;
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 11px;
+    color: #c0c0e0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .placed-item:hover { opacity: 0.7; }
+  .ai-zone .placed-item { border-color: rgba(108,99,255,0.3); }
+  .human-zone .placed-item { border-color: rgba(0,200,100,0.3); }
+  .placed-item .remove-btn {
+    margin-left: auto;
+    font-size: 10px;
+    color: #3a3a5a;
+    flex-shrink: 0;
+  }
+  .placed-item.correct { border-color: rgba(0,200,100,0.5) !important; }
+  .placed-item.incorrect { border-color: rgba(255,60,60,0.5) !important; color: #ff9090; }
+
+  /* CHECK BUTTON */
+  .check-btn {
+    position: absolute;
+    bottom: 16px;
+    right: 24px;
+    background: linear-gradient(135deg, #6c63ff, #5a50ee);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    box-shadow: 0 4px 16px rgba(108,99,255,0.4);
+    transition: all 0.2s;
+    z-index: 10;
+  }
+  .check-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(108,99,255,0.5); }
+  .check-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* FEEDBACK OVERLAY */
+  .overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .overlay.show { display: flex; }
+
+  .feedback-card {
+    border-radius: 16px;
+    padding: 40px 48px;
+    text-align: center;
+    max-width: 480px;
+    border: 1px solid;
+    position: relative;
+  }
+  .feedback-card.success {
+    background: rgba(0,20,10,0.95);
+    border-color: rgba(0,200,100,0.3);
+    box-shadow: 0 0 60px rgba(0,200,100,0.15);
+  }
+  .feedback-card.error {
+    background: rgba(20,5,5,0.95);
+    border-color: rgba(255,60,60,0.3);
+    box-shadow: 0 0 60px rgba(255,60,60,0.1);
+  }
+  .feedback-card .fb-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+  .feedback-card h2 {
+    font-size: 24px;
+    font-weight: 900;
+    margin-bottom: 12px;
+  }
+  .feedback-card.success h2 { color: #00c864; }
+  .feedback-card.error h2 { color: #ff6060; }
+  .feedback-card p {
+    font-size: 14px;
+    color: #7a7a9a;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+  .feedback-card .errors-list {
+    text-align: left;
+    background: rgba(255,60,60,0.08);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+  }
+  .feedback-card .errors-list .err-item {
+    font-size: 12px;
+    color: #ff9090;
+    padding: 3px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .feedback-card .errors-list .err-item::before { content: '→'; color: #ff4040; }
+  .fb-btn {
+    border: none;
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s;
+  }
+  .fb-btn.try-again {
+    background: rgba(255,60,60,0.15);
+    border: 1px solid rgba(255,60,60,0.3);
+    color: #ff6060;
+  }
+  .fb-btn.continue {
+    background: linear-gradient(135deg, #00c864, #00a050);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(0,200,100,0.3);
+  }
+  .fb-btn:hover { transform: translateY(-1px); }
+
+  /* GHOST ELEMENT FOR DRAG */
+  #drag-ghost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    background: rgba(108,99,255,0.9);
+    border: 1px solid #6c63ff;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 12px;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    white-space: nowrap;
+    display: none;
+    max-width: 220px;
+    white-space: normal;
+    box-shadow: 0 8px 24px rgba(108,99,255,0.5);
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+
+<!-- DRAG GHOST -->
+<div id="drag-ghost"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="eyebrow">Scene 3 · Slide 09</div>
+    <h1>Sort These Tasks — <span>AI or Human?</span></h1>
+  </div>
+  <div class="header-right">
+    <span>Drag each task to the right column</span>
+    <div class="score-badge" id="score-badge">0 / 8 placed</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ITEMS BANK -->
+  <div class="items-bank" id="items-bank">
+    <div class="drag-item" draggable="true" data-id="1" data-correct="ai">
+      <span class="drag-icon">📧</span>Draft a follow-up email to a member
+    </div>
+    <div class="drag-item" draggable="true" data-id="2" data-correct="human">
+      <span class="drag-icon">🔍</span>Verify AI-generated facts
+    </div>
+    <div class="drag-item" draggable="true" data-id="3" data-correct="ai">
+      <span class="drag-icon">📄</span>Summarize a long document
+    </div>
+    <div class="drag-item" draggable="true" data-id="4" data-correct="human">
+      <span class="drag-icon">⚖️</span>Make the final call on a member complaint
+    </div>
+    <div class="drag-item" draggable="true" data-id="5" data-correct="ai">
+      <span class="drag-icon">💡</span>Generate 5 ideas for a campaign
+    </div>
+    <div class="drag-item" draggable="true" data-id="6" data-correct="human">
+      <span class="drag-icon">🔒</span>Enter member payment info
+    </div>
+    <div class="drag-item" draggable="true" data-id="7" data-correct="ai">
+      <span class="drag-icon">📊</span>Format a report
+    </div>
+    <div class="drag-item" draggable="true" data-id="8" data-correct="human">
+      <span class="drag-icon">💬</span>Provide emotional support to a member
+    </div>
+  </div>
+
+  <!-- CENTER -->
+  <div class="center-col">
+    <div class="drag-arrow">⟵</div>
+    <div class="instruction">drag & drop</div>
+    <div class="drag-arrow">⟶</div>
+  </div>
+
+  <!-- DROP ZONES -->
+  <div class="drop-zones">
+    <div class="drop-zone ai-zone" id="zone-ai" data-zone="ai">
+      <div class="zone-header">
+        <div class="zone-icon">🤖</div>
+        <div class="zone-label">AI Can Handle</div>
+        <div class="zone-sublabel" id="ai-count">0 items</div>
+      </div>
+      <div class="zone-items" id="zone-ai-items">
+        <div class="zone-empty-hint">Drop tasks here</div>
+      </div>
+    </div>
+    <div class="drop-zone human-zone" id="zone-human" data-zone="human">
+      <div class="zone-header">
+        <div class="zone-icon">🧑</div>
+        <div class="zone-label">Always Needs You</div>
+        <div class="zone-sublabel" id="human-count">0 items</div>
+      </div>
+      <div class="zone-items" id="zone-human-items">
+        <div class="zone-empty-hint">Drop tasks here</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHECK BUTTON -->
+<button class="check-btn" id="check-btn" disabled onclick="checkAnswers()">Check My Answers →</button>
+
+<!-- SUCCESS OVERLAY -->
+<div class="overlay" id="overlay-success">
+  <div class="feedback-card success">
+    <div class="fb-icon">🎉</div>
+    <h2>Nailed It!</h2>
+    <p>You correctly sorted all 8 tasks. AI is fastest when the task is clear and doesn't involve sensitive data — your job is to guide it and always review before you use it.</p>
+    <p style="font-size:12px; color:#00a050; margin-bottom:20px;">
+      <strong>"Think of AI like a brilliant new hire. Smart and fast — but needs clear instructions and supervision."</strong><br>— Marcus
+    </p>
+    <button class="fb-btn continue" onclick="window.parent.postMessage('next','*')">Continue to Scene 4 →</button>
+  </div>
+</div>
+
+<!-- ERROR OVERLAY -->
+<div class="overlay" id="overlay-error">
+  <div class="feedback-card error">
+    <div class="fb-icon">⚠️</div>
+    <h2>Not Quite</h2>
+    <p>A few tasks landed in the wrong column. Review the ones below and try again.</p>
+    <div class="errors-list" id="errors-list"></div>
+    <button class="fb-btn try-again" onclick="tryAgain()">↺ Try Again</button>
+  </div>
+</div>
+
+<script>
+  // State
+  const placements = {}; // id -> zone
+  const items = document.querySelectorAll('.drag-item');
+  let dragId = null;
+  const ghost = document.getElementById('drag-ghost');
+
+  // Drag events
+  items.forEach(item => {
+    item.addEventListener('dragstart', e => {
+      dragId = item.dataset.id;
+      item.classList.add('dragging');
+      ghost.textContent = item.querySelector('.drag-icon').textContent + ' ' + item.childNodes[2].textContent.trim();
+      ghost.style.display = 'block';
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging');
+      ghost.style.display = 'none';
+    });
+  });
+
+  document.addEventListener('dragover', e => {
+    ghost.style.left = (e.clientX + 14) + 'px';
+    ghost.style.top = (e.clientY + 10) + 'px';
+  });
+
+  // Drop zones
+  document.querySelectorAll('.drop-zone').forEach(zone => {
+    zone.addEventListener('dragover', e => {
+      e.preventDefault();
+      zone.classList.add('drag-over');
+    });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      if (!dragId) return;
+      const zoneName = zone.dataset.zone;
+      // Remove from previous zone if re-dropping
+      if (placements[dragId]) {
+        const prev = document.getElementById(`zone-${placements[dragId]}-items`);
+        const existing = prev.querySelector(`[data-placed-id="${dragId}"]`);
+        if (existing) existing.remove();
+      }
+      placements[dragId] = zoneName;
+      addToZone(dragId, zoneName);
+      dragId = null;
+      updateUI();
+    });
+  });
+
+  function addToZone(id, zoneName) {
+    const sourceItem = document.querySelector(`.drag-item[data-id="${id}"]`);
+    const text = sourceItem.querySelector('.drag-icon').textContent + ' ' + sourceItem.childNodes[2].textContent.trim();
+    sourceItem.classList.add('placed');
+
+    const zoneItems = document.getElementById(`zone-${zoneName}-items`);
+    // Remove empty hint
+    const hint = zoneItems.querySelector('.zone-empty-hint');
+    if (hint) hint.remove();
+
+    const el = document.createElement('div');
+    el.className = 'placed-item';
+    el.dataset.placedId = id;
+    el.innerHTML = `<span>${text}</span><span class="remove-btn">✕</span>`;
+    el.addEventListener('click', () => removeFromZone(id, zoneName));
+    zoneItems.appendChild(el);
+  }
+
+  function removeFromZone(id, zoneName) {
+    const zoneItems = document.getElementById(`zone-${zoneName}-items`);
+    const el = zoneItems.querySelector(`[data-placed-id="${id}"]`);
+    if (el) el.remove();
+    if (zoneItems.children.length === 0) {
+      zoneItems.innerHTML = '<div class="zone-empty-hint">Drop tasks here</div>';
+    }
+    delete placements[id];
+    const sourceItem = document.querySelector(`.drag-item[data-id="${id}"]`);
+    sourceItem.classList.remove('placed');
+    updateUI();
+  }
+
+  function updateUI() {
+    const total = Object.keys(placements).length;
+    document.getElementById('score-badge').textContent = `${total} / 8 placed`;
+    const aiCount = Object.values(placements).filter(v => v === 'ai').length;
+    const humanCount = Object.values(placements).filter(v => v === 'human').length;
+    document.getElementById('ai-count').textContent = `${aiCount} item${aiCount !== 1 ? 's' : ''}`;
+    document.getElementById('human-count').textContent = `${humanCount} item${humanCount !== 1 ? 's' : ''}`;
+    document.getElementById('check-btn').disabled = total < 8;
+  }
+
+  function checkAnswers() {
+    const allItems = document.querySelectorAll('.drag-item');
+    let errors = [];
+    allItems.forEach(item => {
+      const id = item.dataset.id;
+      const correct = item.dataset.correct;
+      const placed = placements[id];
+      const placedEl = document.querySelector(`[data-placed-id="${id}"]`);
+      if (placed === correct) {
+        if (placedEl) placedEl.classList.add('correct');
+      } else {
+        if (placedEl) placedEl.classList.add('incorrect');
+        const label = item.childNodes[2].textContent.trim();
+        const shouldBe = correct === 'ai' ? '🤖 AI Can Handle' : '🧑 Always Needs You';
+        errors.push(`"${label}" → ${shouldBe}`);
+      }
+    });
+
+    if (errors.length === 0) {
+      document.getElementById('overlay-success').classList.add('show');
+    } else {
+      const list = document.getElementById('errors-list');
+      list.innerHTML = errors.map(e => `<div class="err-item">${e}</div>`).join('');
+      document.getElementById('overlay-error').classList.add('show');
+    }
+  }
+
+  function tryAgain() {
+    document.getElementById('overlay-error').classList.remove('show');
+    // Reset all
+    Object.keys(placements).forEach(id => {
+      const zoneItems = document.getElementById(`zone-${placements[id]}-items`);
+      const el = zoneItems.querySelector(`[data-placed-id="${id}"]`);
+      if (el) el.remove();
+      const sourceItem = document.querySelector(`.drag-item[data-id="${id}"]`);
+      sourceItem.classList.remove('placed');
+    });
+    for (const key in placements) delete placements[key];
+    document.querySelectorAll('.zone-items').forEach(zi => {
+      if (zi.children.length === 0) zi.innerHTML = '<div class="zone-empty-hint">Drop tasks here</div>';
+    });
+    updateUI();
+  }
+</script>
+</body>
+</html>
