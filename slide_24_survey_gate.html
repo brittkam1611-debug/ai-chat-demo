@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Almost Done!</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d0d1a;
+    color: #c0c0e0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 28px 20px;
+  }
+
+  .card {
+    background: #13132a;
+    border: 1.5px solid #2a2a4a;
+    border-radius: 14px;
+    padding: 36px 40px;
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 12px 40px rgba(108,99,255,0.15);
+  }
+
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 32px;
+  }
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .step-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    border: 2px solid #2a2a4a;
+    color: #7a7a9a;
+    background: #1a1a35;
+    transition: all 0.4s ease;
+  }
+
+  .step-circle.done {
+    background: #00c864;
+    border-color: #00c864;
+    color: #0d0d1a;
+  }
+
+  .step-circle.active {
+    background: #6c63ff;
+    border-color: #6c63ff;
+    color: #ffffff;
+    box-shadow: 0 0 14px rgba(108,99,255,0.5);
+  }
+
+  .step-label {
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #7a7a9a;
+  }
+
+  .step-label.active { color: #6c63ff; }
+  .step-label.done { color: #00c864; }
+
+  .step-line {
+    width: 60px;
+    height: 2px;
+    background: #2a2a4a;
+    margin: 0 8px;
+    margin-bottom: 22px;
+    transition: background 0.4s ease;
+  }
+
+  .step-line.done { background: #00c864; }
+
+  /* State 1 — Survey */
+  #state-survey { display: block; }
+  #state-done   { display: none; }
+
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #6c63ff;
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    font-size: 24px;
+    color: #ffffff;
+    margin-bottom: 10px;
+    line-height: 1.3;
+  }
+
+  .body-text {
+    font-size: 13px;
+    color: #7a7a9a;
+    line-height: 1.65;
+    margin-bottom: 28px;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .survey-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #6c63ff, #00c8ff);
+    border: none;
+    border-radius: 10px;
+    padding: 16px 36px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffffff;
+    cursor: pointer;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.2s;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+  }
+
+  .survey-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  .already-done {
+    font-size: 12px;
+    color: #7a7a9a;
+    margin-top: 12px;
+  }
+
+  .already-done button {
+    background: none;
+    border: none;
+    color: #6c63ff;
+    cursor: pointer;
+    font-size: 12px;
+    text-decoration: underline;
+    font-family: inherit;
+  }
+
+  .already-done button:hover { color: #00c8ff; }
+
+  /* State 2 — Done */
+  .done-icon {
+    font-size: 52px;
+    margin-bottom: 16px;
+  }
+
+  .cert-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #00c864, #00c8ff);
+    border: none;
+    border-radius: 10px;
+    padding: 16px 36px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #0d0d1a;
+    cursor: pointer;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.2s;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+  }
+
+  .cert-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  .cert-note {
+    font-size: 11px;
+    color: #7a7a9a;
+    margin-top: 8px;
+  }
+
+  /* Confetti dots */
+  .confetti-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- Step indicator -->
+  <div class="step-indicator">
+    <div class="step">
+      <div class="step-circle done" id="circle-1">&#10003;</div>
+      <div class="step-label done">Course</div>
+    </div>
+    <div class="step-line done" id="line-1"></div>
+    <div class="step">
+      <div class="step-circle active" id="circle-2">2</div>
+      <div class="step-label active" id="label-2">Survey</div>
+    </div>
+    <div class="step-line" id="line-2"></div>
+    <div class="step">
+      <div class="step-circle" id="circle-3">3</div>
+      <div class="step-label" id="label-3">Certificate</div>
+    </div>
+  </div>
+
+  <!-- State 1: Survey prompt -->
+  <div id="state-survey">
+    <div class="eyebrow">One Last Step</div>
+    <h1>You're Almost Done!</h1>
+    <p class="body-text">
+      Before you get your certificate, please take 3 minutes to complete the course survey.
+      Your feedback helps us improve this training for future learners.
+    </p>
+    <a class="survey-btn" href="https://www.surveymonkey.com/r/MHV2MBZ"
+       target="_blank" onclick="surveyOpened()">
+      Take the Survey
+    </a>
+    <div class="already-done">
+      Already completed it? <button onclick="showCert()">Click here to get your certificate</button>
+    </div>
+  </div>
+
+  <!-- State 2: Certificate unlocked -->
+  <div id="state-done">
+    <div class="confetti-row">
+      <div class="dot" style="background:#6c63ff"></div>
+      <div class="dot" style="background:#00c8ff"></div>
+      <div class="dot" style="background:#00c864"></div>
+      <div class="dot" style="background:#ffb800"></div>
+      <div class="dot" style="background:#ff4757"></div>
+      <div class="dot" style="background:#6c63ff"></div>
+      <div class="dot" style="background:#00c8ff"></div>
+    </div>
+    <div class="done-icon">&#127942;</div>
+    <div class="eyebrow">Survey Complete</div>
+    <h1>Your Certificate is Ready!</h1>
+    <p class="body-text" style="margin-bottom:20px">
+      Thank you for completing the survey. Click below to get your personalized certificate of completion.
+    </p>
+    <a class="cert-btn" href="https://brittkam1611-debug.github.io/ai-chat-demo/slide_25_certificate.html"
+       target="_blank">
+      Get My Certificate
+    </a>
+    <div class="cert-note">Opens in a new tab — enter your name to generate and print your certificate.</div>
+  </div>
+
+</div>
+
+<script>
+  let surveyClicked = false;
+
+  function surveyOpened() {
+    surveyClicked = true;
+    // After a short delay, prompt them to come back
+    setTimeout(() => {
+      if (surveyClicked) {
+        document.getElementById('already-done-row') &&
+          (document.querySelector('.already-done').innerHTML =
+            'Done with the survey? <button onclick="showCert()">Click here for your certificate</button>');
+      }
+    }, 8000);
+  }
+
+  function showCert() {
+    // Update step indicators
+    document.getElementById('circle-2').className = 'step-circle done';
+    document.getElementById('circle-2').innerHTML = '&#10003;';
+    document.getElementById('label-2').className = 'step-label done';
+    document.getElementById('line-2').className = 'step-line done';
+    document.getElementById('circle-3').className = 'step-circle active';
+    document.getElementById('label-3').className = 'step-label active';
+
+    // Swap states
+    document.getElementById('state-survey').style.display = 'none';
+    document.getElementById('state-done').style.display = 'block';
+  }
+</script>
+
+</body>
+</html>
