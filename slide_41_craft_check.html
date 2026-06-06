@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRAFT Knowledge Check</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d0d1a;
+    color: #c0c0e0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 20px;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #6c63ff;
+    text-align: center;
+    margin-bottom: 6px;
+  }
+
+  h1 {
+    font-size: 20px;
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-size: 12px;
+    color: #7a7a9a;
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .question-card {
+    background: #13132a;
+    border: 1.5px solid #2a2a4a;
+    border-radius: 12px;
+    padding: 24px 28px;
+    max-width: 680px;
+    width: 100%;
+    margin-bottom: 16px;
+  }
+
+  .q-num {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #6c63ff;
+    margin-bottom: 10px;
+  }
+
+  .q-text {
+    font-size: 15px;
+    color: #ffffff;
+    line-height: 1.5;
+    margin-bottom: 18px;
+    font-weight: 600;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #1a1a35;
+    border: 1.5px solid #2a2a4a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    color: #c0c0e0;
+    text-align: left;
+    font-family: inherit;
+    width: 100%;
+  }
+
+  .option:hover:not(:disabled) {
+    border-color: #6c63ff55;
+    background: #1e1e40;
+  }
+
+  .option.correct {
+    border-color: #00c864;
+    background: #0d1f18;
+    color: #ffffff;
+  }
+
+  .option.incorrect {
+    border-color: #ff4757;
+    background: #1f0d12;
+    color: #7a7a9a;
+  }
+
+  .option.dimmed {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  .option-letter {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #2a2a4a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .option.correct .option-letter { background: #00c864; color: #0d0d1a; }
+  .option.incorrect .option-letter { background: #ff4757; color: #ffffff; }
+
+  .feedback {
+    display: none;
+    margin-top: 14px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .feedback.correct-fb {
+    background: #0d1f18;
+    border: 1px solid #00c86440;
+    color: #00c864;
+    display: block;
+  }
+
+  .feedback.incorrect-fb {
+    background: #1f0d12;
+    border: 1px solid #ff475740;
+    color: #ff9f9f;
+    display: block;
+  }
+
+  .feedback strong { color: #ffffff; }
+
+  /* Progress & completion */
+  .progress-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .pip {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #2a2a4a;
+    transition: background 0.3s;
+  }
+
+  .pip.done { background: #6c63ff; }
+  .pip.correct-pip { background: #00c864; }
+  .pip.incorrect-pip { background: #ff4757; }
+
+  .completion {
+    display: none;
+    text-align: center;
+    max-width: 500px;
+    padding: 28px;
+    background: #13132a;
+    border: 1.5px solid #6c63ff;
+    border-radius: 12px;
+    box-shadow: 0 0 30px rgba(108,99,255,0.2);
+  }
+
+  .completion.show { display: block; }
+
+  .completion-icon { font-size: 40px; margin-bottom: 12px; }
+  .completion-title { font-size: 22px; font-weight: 700; color: #ffffff; margin-bottom: 8px; }
+  .completion-score { font-size: 15px; color: #7a7a9a; margin-bottom: 16px; }
+  .score-num { color: #6c63ff; font-weight: 700; font-size: 28px; }
+
+  .completion-msg { font-size: 13px; color: #a0a0c0; line-height: 1.6; margin-bottom: 20px; }
+
+  .retry-btn {
+    background: linear-gradient(135deg, #6c63ff, #00c8ff);
+    border: none;
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .retry-btn:hover { opacity: 0.9; }
+</style>
+</head>
+<body>
+
+<div class="eyebrow">Scene 4 — CRAFT Framework</div>
+<h1>Knowledge Check</h1>
+<p class="subtitle">2 questions — select the best answer for each.</p>
+
+<div class="progress-row">
+  <div class="pip" id="pip-0"></div>
+  <div class="pip" id="pip-1"></div>
+</div>
+
+<div id="questions-area">
+
+  <!-- Question 1 -->
+  <div class="question-card" id="q1-card">
+    <div class="q-num">Question 1 of 2</div>
+    <div class="q-text">Which element of the CRAFT framework tells the AI who to be?</div>
+    <div class="options">
+      <button class="option" onclick="answer(1, 'A', false)" id="q1-A">
+        <span class="option-letter">A</span> Context
+      </button>
+      <button class="option" onclick="answer(1, 'B', true)" id="q1-B">
+        <span class="option-letter">B</span> Role
+      </button>
+      <button class="option" onclick="answer(1, 'C', false)" id="q1-C">
+        <span class="option-letter">C</span> Action
+      </button>
+      <button class="option" onclick="answer(1, 'D', false)" id="q1-D">
+        <span class="option-letter">D</span> Format
+      </button>
+    </div>
+    <div class="feedback" id="q1-feedback"></div>
+  </div>
+
+  <!-- Question 2 -->
+  <div class="question-card" id="q2-card" style="opacity:0.4; pointer-events:none;">
+    <div class="q-num">Question 2 of 2</div>
+    <div class="q-text">Marcus needs to draft a follow-up email for a frustrated member. Which prompt best applies the CRAFT framework?</div>
+    <div class="options">
+      <button class="option" onclick="answer(2, 'A', false)" id="q2-A">
+        <span class="option-letter">A</span> "Write an email about a billing issue."
+      </button>
+      <button class="option" onclick="answer(2, 'B', false)" id="q2-B">
+        <span class="option-letter">B</span> "Write a long detailed email explaining everything about our member's problem and make it sound good."
+      </button>
+      <button class="option" onclick="answer(2, 'C', true)" id="q2-C">
+        <span class="option-letter">C</span> "Act as a member services rep. Draft a professional, empathetic follow-up email for a member with an unresolved billing issue. Include an apology and clear next steps. Keep it under 150 words."
+      </button>
+      <button class="option" onclick="answer(2, 'D', false)" id="q2-D">
+        <span class="option-letter">D</span> "Make the email sound nice and fix the billing thing."
+      </button>
+    </div>
+    <div class="feedback" id="q2-feedback"></div>
+  </div>
+
+</div>
+
+<div class="completion" id="completion">
+  <div class="completion-icon" id="comp-icon"></div>
+  <div class="completion-title" id="comp-title"></div>
+  <div class="completion-score"><span class="score-num" id="comp-score"></span> / 2 correct</div>
+  <div class="completion-msg" id="comp-msg"></div>
+  <button class="retry-btn" onclick="retry()">Try Again</button>
+</div>
+
+<script>
+  const answered = { 1: false, 2: false };
+  let score = 0;
+
+  function answer(qNum, choice, isCorrect) {
+    if (answered[qNum]) return;
+    answered[qNum] = true;
+
+    const letters = ['A','B','C','D'];
+    letters.forEach(l => {
+      const btn = document.getElementById('q' + qNum + '-' + l);
+      btn.disabled = true;
+      if (l === choice) {
+        btn.classList.add(isCorrect ? 'correct' : 'incorrect');
+      } else {
+        btn.classList.add('dimmed');
+      }
+    });
+
+    const fb = document.getElementById('q' + qNum + '-feedback');
+    if (isCorrect) {
+      score++;
+      document.getElementById('pip-' + (qNum-1)).classList.add('correct-pip');
+      if (qNum === 1) {
+        fb.className = 'feedback correct-fb';
+        fb.innerHTML = '<strong>Correct!</strong> Role tells the AI what persona to take on. "Act as an experienced member services representative" is a Role statement.';
+      } else {
+        fb.className = 'feedback correct-fb';
+        fb.innerHTML = '<strong>Correct!</strong> Option C hits all 5 CRAFT elements — Role (member services rep), Context (frustrated member, billing issue), Action (draft follow-up), Format (under 150 words), Tone (professional and empathetic).';
+      }
+    } else {
+      document.getElementById('pip-' + (qNum-1)).classList.add('incorrect-pip');
+      if (qNum === 1) {
+        fb.className = 'feedback incorrect-fb';
+        fb.innerHTML = '<strong>Not quite.</strong> <strong>Role</strong> is the element that gives AI its persona. Context sets the situation, Action describes the task, and Format shapes the output.';
+      } else {
+        fb.className = 'feedback incorrect-fb';
+        fb.innerHTML = '<strong>Not quite.</strong> Option C is the strongest prompt — it specifies who the AI should be, what the situation is, what to write, how long it should be, and the tone to use. Vague prompts get vague results.';
+      }
+    }
+
+    // Unlock Q2 after Q1 is answered
+    if (qNum === 1) {
+      setTimeout(() => {
+        const q2 = document.getElementById('q2-card');
+        q2.style.opacity = '1';
+        q2.style.pointerEvents = 'auto';
+        q2.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 800);
+    }
+
+    // Show completion after Q2
+    if (qNum === 2) {
+      setTimeout(() => showCompletion(), 1000);
+    }
+  }
+
+  function showCompletion() {
+    document.getElementById('questions-area').style.display = 'none';
+    const comp = document.getElementById('completion');
+    comp.classList.add('show');
+    document.getElementById('comp-score').textContent = score;
+
+    if (score === 2) {
+      document.getElementById('comp-icon').textContent = '🏆';
+      document.getElementById('comp-title').textContent = 'Perfect Score!';
+      document.getElementById('comp-msg').textContent = 'You\'ve got the CRAFT framework down. You know what each element does and how a strong prompt looks in practice. Time to build one yourself.';
+    } else if (score === 1) {
+      document.getElementById('comp-icon').textContent = '⚡';
+      document.getElementById('comp-title').textContent = 'Almost There!';
+      document.getElementById('comp-msg').textContent = 'You\'re on the right track — one more review of the CRAFT elements and you\'ll have it locked in. Try again or keep going and revisit later.';
+    } else {
+      document.getElementById('comp-icon').textContent = '🔁';
+      document.getElementById('comp-title').textContent = 'Let\'s Review';
+      document.getElementById('comp-msg').textContent = 'No worries — CRAFT takes a little practice. Read through the feedback on each question, then give it another try before moving on.';
+    }
+  }
+
+  function retry() {
+    score = 0;
+    answered[1] = false;
+    answered[2] = false;
+
+    ['A','B','C','D'].forEach(l => {
+      ['q1-','q2-'].forEach(q => {
+        const btn = document.getElementById(q + l);
+        btn.className = 'option';
+        btn.disabled = false;
+        const qNum = q === 'q1-' ? 1 : 2;
+        btn.setAttribute('onclick', 'answer(' + qNum + ', \'' + l + '\', ' + (
+          (qNum === 1 && l === 'B') || (qNum === 2 && l === 'C')
+        ) + ')');
+      });
+    });
+
+    document.getElementById('q1-feedback').className = 'feedback';
+    document.getElementById('q2-feedback').className = 'feedback';
+    document.getElementById('q2-card').style.opacity = '0.4';
+    document.getElementById('q2-card').style.pointerEvents = 'none';
+    document.getElementById('pip-0').className = 'pip';
+    document.getElementById('pip-1').className = 'pip';
+
+    document.getElementById('completion').classList.remove('show');
+    document.getElementById('questions-area').style.display = 'block';
+  }
+</script>
+
+</body>
+</html>
