@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Assistant</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #1a1a2e;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* Header */
+  .header {
+    background: #16213e;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid #0f3460;
+  }
+  .header-icon {
+    width: 32px; height: 32px;
+    background: #4ade80;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .header-title { color: #fff; font-weight: 600; font-size: 15px; }
+  .header-sub { color: #94a3b8; font-size: 11px; }
+  .status-dot {
+    width: 8px; height: 8px;
+    background: #4ade80;
+    border-radius: 50%;
+    margin-left: auto;
+    box-shadow: 0 0 6px #4ade80;
+  }
+
+  /* Chat area */
+  .chat-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .welcome-msg {
+    background: #16213e;
+    border: 1px solid #0f3460;
+    border-radius: 12px;
+    padding: 12px 14px;
+    color: #94a3b8;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .welcome-msg strong { color: #e2e8f0; }
+
+  /* Message bubbles */
+  .msg { display: flex; flex-direction: column; gap: 4px; }
+
+  .msg-user {
+    align-items: flex-end;
+  }
+  .msg-ai {
+    align-items: flex-start;
+  }
+
+  .bubble-label {
+    font-size: 10px;
+    color: #64748b;
+    padding: 0 4px;
+  }
+
+  .bubble {
+    max-width: 85%;
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .bubble-user {
+    background: #1e40af;
+    color: #e2e8f0;
+    border-bottom-right-radius: 4px;
+  }
+
+  .bubble-ai {
+    background: #16213e;
+    border: 1px solid #0f3460;
+    color: #e2e8f0;
+    border-bottom-left-radius: 4px;
+  }
+
+  /* Result banner */
+  .result-banner {
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.5;
+  }
+  .result-banner.red { background: #450a0a; border: 1px solid #dc2626; color: #fca5a5; }
+  .result-banner.yellow { background: #451a03; border: 1px solid #d97706; color: #fcd34d; }
+  .result-banner.green { background: #052e16; border: 1px solid #16a34a; color: #86efac; }
+  .result-icon { font-size: 16px; flex-shrink: 0; }
+
+  /* Typing indicator */
+  .typing {
+    display: flex; align-items: center; gap: 4px;
+    background: #16213e;
+    border: 1px solid #0f3460;
+    border-radius: 14px;
+    padding: 12px 16px;
+    width: fit-content;
+  }
+  .typing span {
+    width: 6px; height: 6px;
+    background: #64748b;
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-6px); background: #4ade80; }
+  }
+
+  /* Input area */
+  .input-area {
+    padding: 12px 16px;
+    background: #16213e;
+    border-top: 1px solid #0f3460;
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+  }
+
+  .input-wrap {
+    flex: 1;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+  }
+
+  textarea {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #e2e8f0;
+    font-size: 13px;
+    font-family: inherit;
+    width: 100%;
+    resize: none;
+    max-height: 80px;
+    line-height: 1.5;
+  }
+  textarea::placeholder { color: #475569; }
+
+  .send-btn {
+    width: 38px; height: 38px;
+    background: #1e40af;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+    font-size: 16px;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .send-btn:hover { background: #2563eb; }
+  .send-btn:disabled { background: #334155; cursor: not-allowed; }
+
+  .hint {
+    text-align: center;
+    font-size: 10px;
+    color: #475569;
+    padding: 4px 0 0;
+  }
+
+  /* Reset button */
+  .reset-btn {
+    background: transparent;
+    border: 1px solid #334155;
+    color: #64748b;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: auto;
+    display: block;
+    margin-top: 4px;
+  }
+  .reset-btn:hover { color: #94a3b8; border-color: #475569; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">🤖</div>
+  <div>
+    <div class="header-title">AI Assistant</div>
+    <div class="header-sub">Workplace Writing Helper</div>
+  </div>
+  <div class="status-dot"></div>
+</div>
+
+<div class="chat-area" id="chatArea">
+  <div class="welcome-msg">
+    👋 <strong>Try writing a prompt!</strong><br>
+    Ask me to help Marcus draft a payment plan confirmation email. See how the quality of your prompt affects my response.
+  </div>
+</div>
+
+<div class="input-area">
+  <div class="input-wrap">
+    <textarea id="userInput" placeholder="Type your prompt here..." rows="1"
+      onkeydown="handleKey(event)"></textarea>
+  </div>
+  <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+</div>
+<div style="padding: 0 16px 10px; display:flex; justify-content:space-between; align-items:center;">
+  <div class="hint">Press Enter to send · Shift+Enter for new line</div>
+  <button class="reset-btn" onclick="resetChat()">↺ Reset</button>
+</div>
+
+<script>
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 80) + 'px';
+  }
+
+  document.getElementById('userInput').addEventListener('input', function() {
+    autoResize(this);
+  });
+
+  function sendMessage() {
+    const input = document.getElementById('userInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    // Disable input while processing
+    input.disabled = true;
+    document.getElementById('sendBtn').disabled = true;
+
+    appendUserBubble(text);
+    input.value = '';
+    input.style.height = 'auto';
+
+    // Show typing indicator
+    const typingId = showTyping();
+
+    setTimeout(() => {
+      removeTyping(typingId);
+      const response = getAIResponse(text);
+      appendAIResponse(response);
+      input.disabled = false;
+      document.getElementById('sendBtn').disabled = false;
+      input.focus();
+    }, 1800);
+  }
+
+  function appendUserBubble(text) {
+    const chat = document.getElementById('chatArea');
+    const msg = document.createElement('div');
+    msg.className = 'msg msg-user';
+    msg.innerHTML = `
+      <div class="bubble-label">You</div>
+      <div class="bubble bubble-user">${escapeHtml(text)}</div>
+    `;
+    chat.appendChild(msg);
+    scrollToBottom();
+  }
+
+  function appendAIResponse(response) {
+    const chat = document.getElementById('chatArea');
+    const msg = document.createElement('div');
+    msg.className = 'msg msg-ai';
+    msg.innerHTML = `
+      <div class="bubble-label">AI Assistant</div>
+      <div class="bubble bubble-ai">${response.email}</div>
+      <div class="result-banner ${response.bannerClass}">
+        <span class="result-icon">${response.icon}</span>
+        <div><strong>${response.bannerTitle}</strong><br>${response.bannerText}</div>
+      </div>
+    `;
+    chat.appendChild(msg);
+    scrollToBottom();
+  }
+
+  function showTyping() {
+    const chat = document.getElementById('chatArea');
+    const div = document.createElement('div');
+    div.className = 'msg msg-ai';
+    const id = 'typing-' + Date.now();
+    div.id = id;
+    div.innerHTML = `
+      <div class="bubble-label">AI Assistant</div>
+      <div class="typing"><span></span><span></span><span></span></div>
+    `;
+    chat.appendChild(div);
+    scrollToBottom();
+    return id;
+  }
+
+  function removeTyping(id) {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+  }
+
+  function scrollToBottom() {
+    const chat = document.getElementById('chatArea');
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function escapeHtml(text) {
+    return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  }
+
+  function resetChat() {
+    const chat = document.getElementById('chatArea');
+    chat.innerHTML = `
+      <div class="welcome-msg">
+        👋 <strong>Try writing a prompt!</strong><br>
+        Ask me to help Marcus draft a payment plan confirmation email. See how the quality of your prompt affects my response.
+      </div>`;
+  }
+
+  function getAIResponse(text) {
+    const lower = text.toLowerCase();
+
+    // PII detected — real names, account numbers, specific dollar amounts with names
+    const piiPatterns = [
+      /janet|moore|account\s*#?\d+|\$\d+.*month|77432|specific.*name|member.*name.*account/i
+    ];
+    const hasPII = piiPatterns.some(p => p.test(text));
+
+    // Too vague — short, no context, no tone, no format
+    const isVague = text.length < 60 && !hasPII &&
+      !/(tone|friendly|professional|warm|formal|under \d+|confirm|payment plan.*approv|approv.*payment)/i.test(text);
+
+    if (hasPII) {
+      return {
+        email: `Dear Janet Moore,<br><br>
+I am pleased to confirm that your payment plan of <strong>$150/month</strong> has been approved, effective <strong>June 1st</strong>.<br><br>
+Your account (<strong>#77432</strong>) has been updated accordingly. Please log in to your member portal to review the details.<br><br>
+If you have any questions, don't hesitate to reach out.<br><br>
+Warm regards,<br>
+LegalShield Member Services`,
+        icon: '⚠️',
+        bannerClass: 'yellow',
+        bannerTitle: 'Privacy Risk — This looks good, but...',
+        bannerText: "Janet Moore's name and account #77432 just went into a public AI tool. That data may be stored or used to train future models outside your company's control. Never enter real member names or account numbers into public AI."
+      };
+    }
+
+    if (isVague) {
+      return {
+        email: `Dear [Member Name],<br><br>
+I am writing to inform you about your payment plan with [Company Name].<br><br>
+Your payment plan of [Amount] has been [Status]. Please contact us at [Phone Number] if you have any questions about [Details].<br><br>
+Thank you for being a valued member.<br><br>
+Sincerely,<br>
+[Your Name]<br>
+[Department]`,
+        icon: '❌',
+        bannerClass: 'red',
+        bannerTitle: 'Too Vague — Not useful!',
+        bannerText: "The AI had nothing to work with, so it filled everything with placeholders. A good prompt needs context (what's the situation?), format (how long? what tone?), and a clear task — without any real member data."
+      };
+    }
+
+    // Good prompt
+    return {
+      email: `Hi [Member's First Name],<br><br>
+Great news — your payment plan request has been approved! 🎉<br><br>
+Here's what happens next:<br>
+• Your plan is now active and payments will begin on your next billing date<br>
+• You'll receive a confirmation in your member portal<br>
+• If anything changes, just give us a call and we'll help<br><br>
+Thanks for working with us on this. We're glad we could find a solution that works for you.<br><br>
+Warm regards,<br>
+Member Services Team`,
+      icon: '✅',
+      bannerClass: 'green',
+      bannerTitle: 'Great prompt — Safe and effective!',
+      bannerText: "This response is professional, warm, and ready to personalize — with zero member data at risk. This is exactly how to use AI at work: give it context and tone, leave out the sensitive details, then add the personal info yourself before sending."
+    };
+  }
+</script>
+</body>
+</html>
